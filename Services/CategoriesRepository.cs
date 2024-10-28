@@ -25,6 +25,14 @@ namespace BudgetManagement.Services {
             return await connection.QueryAsync<Category>("SELECT * FROM Categories WHERE UserId = @UserId", new { userId });
         }
 
+        public async Task<IEnumerable<Category>> GetForUserAndOperationType(int userId, int operationTypeId) {
+            using var connection = new SqlConnection(connectionString);
+            return await connection.QueryAsync<Category>(
+                @$"SELECT * FROM Categories 
+                WHERE UserId = @UserId AND OperationTypeId = @operationTypeId", 
+                 new { userId, operationTypeId });
+        }
+
         public async Task<Category> GetById(int id, int userId) {
             using var connection = new SqlConnection(connectionString);
             return await connection.QueryFirstOrDefaultAsync<Category>(

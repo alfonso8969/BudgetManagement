@@ -6,6 +6,7 @@ namespace BudgetManagement.Interfaces {
         Task Delete(int id);
         Task<IEnumerable<Category>> GetAllForUser(int userId);
         Task<Category> GetById(int id, int userId);
+        Task<IEnumerable<Category>> GetForUserAndOperationType(int userId, int operationTypeId);
         Task Update(Category category);
     }
 }

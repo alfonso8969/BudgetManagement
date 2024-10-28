@@ -1,0 +1,78 @@
+﻿@model TransactionCreateViewModel
+@{
+    ViewData["Title"] = "Create Transaction";
+}
+
+<h2>Create Transaction</h2>
+<h5>@Html.DisplayNameFor(model => model.TransactionDate)</h5>
+<h5>A transaction allows you to indicate income and expenses</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mb-3">
+                <label asp-for="TransactionDate" class="control-label"></label>
+                <input asp-for="TransactionDate" class="form-control" />
+                <span asp-validation-for="TransactionDate" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="AccountId" class="control-label"></label>
+                <select asp-for="AccountId" class="form-select" asp-items="@Model.Accounts"></select>
+                <span asp-validation-for="AccountId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="OperationTypeId" class="control-label"></label>
+                <select asp-for="OperationTypeId" class="form-select" asp-items="Html.GetEnumSelectList<OperationType>()"></select>
+                <span asp-validation-for="OperationTypeId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId" class="form-select" asp-items="@Model.Categories"></select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Note" class="control-label"></label>
+                <textarea asp-for="Note" class="form-control" ></textarea>
+                <span asp-validation-for="Note" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mt-3">
+                <input type="submit" value="Create" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-default">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script type="text/javascript">
+        const url = '@Url.Action("GetCategories")';
+        $(function(){
+            $("#OperationTypeId").change(async function(){
+                const valSelected = $(this).val();                
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: valSelected,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const json = await response.json();
+                const options = json.map(category => `<option value=${category.value}>${category.text}</option>`);
+                $('#CategoryId').html(options)
+                
+            })
+        })
+    </script>
+}
+

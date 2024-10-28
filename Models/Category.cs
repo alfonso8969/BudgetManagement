@@ -8,8 +8,6 @@ namespace BudgetManagement.Models {
         public string Name { get; set; }
         [Display(Name = "Operation Type")]
         public OperationType OperationTypeId { get; set; }
-        public int UserId { get; set; }
-
-        
+        public int UserId { get; set; }        
     }
 }
