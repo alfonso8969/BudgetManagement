@@ -1,0 +1,88 @@
+﻿@model IEnumerable<IndexAccountsViewModel>
+@{
+    ViewData["Title"] = "Accounts";
+
+    /// <summary>
+    /// Formats the balance by converting it to a string with thousands separators.
+    /// </summary>
+    /// <param name="balance">The balance to format.</param>
+    /// <returns>A string representation of the balance with thousands separators.</returns>
+    string FormatBalance(decimal balance) => Math.Abs(balance).ToString("N");
+
+    string GetBalanceClass(decimal balance) => balance switch
+    {
+        var x when x > 0 => "asset",
+        var x when x < 0 => "liability",
+        _ => "neutral"
+    };
+}
+
+<h1>Accounts</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary mb-3">Create New</a>
+</p>
+
+<div class="totals-container mb-3">
+    <div>
+        <div>
+            <strong>Assets</strong>
+        </div>
+        <div class="asset">
+            @FormatBalance(@Model.Where(x => x.Balance > 0).Sum(x => x.Balance))
+        </div>
+    </div>
+    <div>
+        <div>
+            <strong>Liabilities</strong>
+        </div>
+        <div class="liability">
+            @FormatBalance(@Model.Where(x => x.Balance < 0).Sum(x => x.Balance))
+        </div>
+    </div>
+    <div>
+        <div>
+            <strong>Total</strong>
+        </div>
+        <div class="total">
+            @FormatBalance(@Model.Sum(x => x.Balance))
+        </div>
+    </div>
+</div>
+
+<div class="accordion accordion-accounts" id="accordionAccountsType">
+    @foreach(var accountType in Model) {
+        <div class="accordion-item">
+            <h2 accesskey="" class="accordion-header" id="headerOne">
+                @{
+                    var id = accountType.AccountType.Replace(" ", "").Replace(":", "").Replace("/", "").Replace("&", "");
+                    var dataBSTarget = "#" + id;
+                    var accountTypeClass = GetBalanceClass(accountType.Balance);
+                }
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="@dataBSTarget">
+                   <span><strong>@accountType.AccountType</strong></span>
+                    <span class="@accountTypeClass">@FormatBalance(accountType.Balance)</span>                    
+                </button>
+            </h2>
+            <div id="@id" class="accordion-collapse collapse" aria-labelledby="@id" data-bs-parent="#accordionAccountsType">
+                <ul class="list-group">
+                    @foreach(var account in accountType.Accounts) {
+                        var classAccount = GetBalanceClass(account.Balance);
+                        <li class="list-group-item">
+                            <span>
+                                <strong>@account.Name</strong>
+                                <a asp-action="Edit" asp-route-id="@account.Id" class="btn btn-primary">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@account.Id" class="btn btn-danger">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </span>
+                            <span class="@classAccount">@FormatBalance(account.Balance)</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+</div>

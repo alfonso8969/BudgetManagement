@@ -1,0 +1,87 @@
+﻿
+@model IEnumerable<AccountType>
+@{
+    ViewData["Title"] = "Accounts type";
+
+}
+
+<h2>Accounts type</h2>
+<h5>Drag the rows to reorder them</h5>
+<p>
+    <a asp-action="Create" class="btn btn-primary mb-3">Create New</a>
+</p>
+<table class="table-bordered table-striped table-responsive-sm table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+@*             <th>
+                @Html.DisplayNameFor(model => model.Order)
+            </th> *@
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="sortable">
+        @foreach (var accountType in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => accountType.Name)
+                </td>
+       @*          <td>
+                    @Html.DisplayFor(modelItem => accountType.Order)
+                </td> *@
+                <td>
+                    <input type="hidden" value="@accountType.Id" class="ids" />
+                    @* <a class="table-actions btn-primary" asp-action="Edit" asp-route-id="@accountType.Id">Edit</a> | *@
+                    @* <a class="table-actions btn-success" asp-action="Details" asp-route-id="@accountType.Id">Details</a> | *@
+                    @* <a class="table-actions btn-danger" asp-action="Delete" asp-route-id="@accountType.Id">Delete</a> *@
+                    <a asp-action="Edit" asp-route-id="@accountType.Id" class="btn btn-primary">
+                        <i class="fa fa-pencil" title="Edit"></i>
+                    </a> |
+                    <a asp-action="Delete" asp-route-id="@accountType.Id" class="btn btn-danger">
+                        <i class="fa fa-trash" title="Delete"></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    
+    <script>
+        const urlSort = '@Url.Action("sort")';
+        $(function () {
+             $("#sortable").sortable({
+                 stop: async function(e, ui) {
+                     await updateSort();
+                 }
+             });
+
+            async function updateSort() {
+               const ids = getIdsOfElements();
+               await sendIdsToBackEnd(ids);
+            }
+
+            function getIdsOfElements() {
+                const ids = $(".ids").map(function() {
+                   return $(this).val();
+                }).get();
+                return ids;
+            }
+
+            async function sendIdsToBackEnd(ids) {
+                var data = JSON.stringify(ids);
+                await fetch(urlSort, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: data
+                });
+            }
+         });
+    </script>
+}
