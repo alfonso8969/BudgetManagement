@@ -17,5 +17,7 @@ namespace BudgetManagement.Models {
         public DateTime TransactionDate { get; set; } = DateTime.Parse(DateTime.Today.ToString(), new CultureInfo("es-ES"));
         [StringLength(1000, ErrorMessage = "The note should not pass of {1} characters")]
         public string Note { get; set; }
+        [Display(Name = "Operation Type")]
+        public OperationType OperationTypeId { get; set; }
     }
 }

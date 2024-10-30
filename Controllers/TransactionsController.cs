@@ -1,4 +1,5 @@
-﻿using BudgetManagement.Interfaces;
+﻿using AutoMapper;
+using BudgetManagement.Interfaces;
 using BudgetManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -9,16 +10,24 @@ namespace BudgetManagement.Controllers {
         private readonly ITransactionsRepository _transactionsRepository;
         private readonly IAccountsRepository _accountsRepository;
         private readonly ICategoriesRepository categoriesRepository;
+        private readonly IMapper mapper;
         private readonly IUsersService _usersService;
 
         public TransactionsController(ITransactionsRepository transactionsRepository,
                                       IUsersService usersService, 
                                       IAccountsRepository accountsRepository,
-                                      ICategoriesRepository categoriesRepository) {
+                                      ICategoriesRepository categoriesRepository,
+                                      IMapper mapper) {
             _transactionsRepository = transactionsRepository;
             _accountsRepository = accountsRepository;
             this.categoriesRepository = categoriesRepository;
+            this.mapper = mapper;
             _usersService = usersService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index() {
+            return View();
         }
 
         [HttpGet]
@@ -26,11 +35,121 @@ namespace BudgetManagement.Controllers {
             var userId = _usersService.GetUserId();
             var model = new TransactionCreateViewModel {
                 Accounts = await GetAccounts(userId),
+                Categories = await GetCategories((int)OperationType.Income, userId)
             };
-            model.Categories = await GetCategories((int)OperationType.Income, userId);
-               
+
             return View(model);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(TransactionCreateViewModel model) {
+            var userId = _usersService.GetUserId();
+            if (!ModelState.IsValid) {
+                model.Accounts = await GetAccounts(userId);
+                model.Categories = await GetCategories((int)OperationType.Income, userId);                
+                return View(model);
+            }
+
+            var account = await _accountsRepository.GetForId(model.AccountId, userId);
+
+            if (account == null) {
+                return RedirectToAction("MineNotFound", "Home");
+            }
+
+            var category = await categoriesRepository.GetById(model.CategoryId, userId);
+
+            if (category == null) {
+                return RedirectToAction("MineNotFound", "Home");
+            }
+
+            model.UserId = userId;
+
+            if(model.OperationTypeId.Equals(OperationType.Spent)){
+                model.Amount = -model.Amount;
+            }
+
+            await _transactionsRepository.Create(model);
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id) {
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
+
+            var userId = _usersService.GetUserId();
+            var transaction = await _transactionsRepository.GetById(id, userId);
+            if (transaction == null) {
+                return RedirectToAction("MineNotFound", "Home");
+            }
+
+            var model = mapper.Map<TransactionsUpdateViewModel>(transaction);
+
+            if (model.OperationTypeId.Equals(OperationType.Spent)) {
+                model.PreviousAmount = model.Amount * -1;
+            }
+
+            model.PreviousAccountId = transaction.AccountId;
+            model.Categories = await GetCategories((int)transaction.OperationTypeId, userId);
+            model.Accounts = await GetAccounts(userId);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(TransactionsUpdateViewModel model) {
+            var userId = _usersService.GetUserId();
+
+            if (!ModelState.IsValid) {
+                model.Accounts = await GetAccounts(userId);
+                model.Categories = await GetCategories((int)model.OperationTypeId, userId);
+                return View(model);
+            }
+
+            var account = await _accountsRepository.GetForId(model.AccountId, userId);
+
+            if (account == null) {
+                return RedirectToAction("MineNotFound", "Home");
+            }
+
+            var category = await categoriesRepository.GetById(model.CategoryId, userId);
+
+            if (category == null) {
+                return RedirectToAction("MineNotFound", "Home");
+            }
+
+            var transaction = mapper.Map<TransactionsUpdateViewModel>(model);
+
+            model.PreviousAmount = model.Amount;
+
+            if (model.OperationTypeId.Equals(OperationType.Spent)) {
+                transaction.Amount *= -1;
+            }
+
+            await _transactionsRepository.Update(transaction, model.PreviousAmount, model.PreviousAccountId);
+
+            return RedirectToAction("Index");
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromBody] int id) {
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
+
+            var userId = _usersService.GetUserId();
+            var transaction = await _transactionsRepository.GetById(id, userId);
+
+            if (transaction is null) {
+                return RedirectToAction("MineNotFound", "Home");
+            }
+
+            await _transactionsRepository.Delete(id);
+            return RedirectToAction("Index");
+        }
+
 
         public async Task<IEnumerable<SelectListItem>> GetAccounts(int userId) {
             if (!ModelState.IsValid) {

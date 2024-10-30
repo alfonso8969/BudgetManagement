@@ -1,0 +1,128 @@
+﻿@model TransactionsUpdateViewModel
+@{
+    ViewData["Title"] = "Transactions Update";
+}
+
+
+<h2>Update transaction</h2>
+
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input id="id" type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="PreviousAmount" />
+            <input type="hidden" asp-for="PreviousAccountId" />
+
+            <div class="form-group mb-3">
+                <label asp-for="TransactionDate" class="control-label"></label>
+                <input asp-for="TransactionDate" class="form-control" />
+                <span asp-validation-for="TransactionDate" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="AccountId" class="control-label"></label>
+                <select asp-for="AccountId" class="form-select" asp-items="@Model.Accounts"></select>
+                <span asp-validation-for="AccountId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="OperationTypeId" class="control-label"></label>
+                <select asp-for="OperationTypeId" class="form-select" asp-items="Html.GetEnumSelectList<OperationType>()"></select>
+                <span asp-validation-for="OperationTypeId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId" class="form-select" asp-items="@Model.Categories"></select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Note" class="control-label"></label>
+                <textarea asp-for="Note" class="form-control"></textarea>
+                <span asp-validation-for="Note" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Edit" class="btn-w150 btn btn-primary" />
+                <input type="button" id="sweetAlert" value="Delete" class="btn-w150 btn btn-danger" />
+                <a asp-action="Index" class="btn btn-default">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/TransactionsForms.js" asp-append-version="true"></script>
+
+    <script type="text/javascript">        
+        const url = '@Url.Action("GetCategories")';
+        $(function(){
+            initFormTransactions(url);
+        })
+        document.getElementById('sweetAlert').addEventListener("click", function () {
+
+            Swal.fire({
+              title: "Delete transaction",
+              text: "Are you sure to delete this transaction?",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+              if (result.isConfirmed) {
+
+                const Id =  document.getElementById("id").value;
+                const urlDelete = '@Url.Action("Delete")';
+                deleteTransaction(Id, urlDelete)
+                .then((resp) => {
+                    console.log(resp);
+                    if (resp.status = 200){
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: "Your transaction has been deleted.",
+                            icon: "success"
+                        }).then(result => {
+                            window.location.href = "/Transactions/Index";
+
+                        });
+                    } else {
+                        const swalWithBootstrapButtons = Swal.mixin({
+                            customClass: {
+                                confirmButton: 'btn btn-danger'
+                            },
+                            buttonsStyling: false
+                        });
+
+                        swalWithBootstrapButtons.fire({
+                            title: 'Something went wrong',
+                            html: "<strong>Call the help desk</strong>",
+                            icon: 'error',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            reverseButtons: true
+                        });
+                    }
+                })
+              }
+            });
+        });
+
+        async function deleteTransaction(Id, url) {
+            return fetch(url, {
+                method: 'POST',
+                body: Id,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });            
+        }
+
+    </script>
+}

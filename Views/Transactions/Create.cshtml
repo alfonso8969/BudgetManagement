@@ -52,26 +52,12 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/TransactionsForms.js" asp-append-version="true"></script>
 
     <script type="text/javascript">
         const url = '@Url.Action("GetCategories")';
         $(function(){
-            $("#OperationTypeId").change(async function(){
-                const valSelected = $(this).val();                
-
-                const response = await fetch(url, {
-                    method: 'POST',
-                    body: valSelected,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                const json = await response.json();
-                const options = json.map(category => `<option value=${category.value}>${category.text}</option>`);
-                $('#CategoryId').html(options)
-                
-            })
+            initFormTransactions(url);
         })
     </script>
 }

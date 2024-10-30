@@ -1,2 +1,5 @@
-﻿internal class AccountsService: IAccountsService {
+﻿
+namespace BudgetManagement.Services {
+    internal class AccountsService: IAccountsService {
+    }
 }
