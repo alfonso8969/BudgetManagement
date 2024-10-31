@@ -19,5 +19,8 @@ namespace BudgetManagement.Models {
         public string Note { get; set; }
         [Display(Name = "Operation Type")]
         public OperationType OperationTypeId { get; set; }
+
+        public string Account { get; set; }
+        public string Category { get; set; }
     }
 }

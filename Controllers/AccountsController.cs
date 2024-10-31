@@ -4,21 +4,25 @@ using BudgetManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
+
 namespace BudgetManagement.Controllers {
     public class AccountsController: Controller {
         private readonly ITypesAccountRepository typesAccountRepository;
         private readonly IUsersService usersService;
         private readonly IAccountsRepository accountsRepository;
         private readonly IMapper mapper;
+        private readonly IReportService reportService;
 
         public AccountsController(ITypesAccountRepository typesAccountRepository, 
             IUsersService usersService, 
             IAccountsRepository accountsRepository,
-            IMapper mapper) {
+            IMapper mapper,
+            IReportService reportService) {
             this.typesAccountRepository = typesAccountRepository;
             this.usersService = usersService;
             this.accountsRepository = accountsRepository;
             this.mapper = mapper;
+            this.reportService = reportService;
         }
 
         public async Task<IActionResult> Index() {
@@ -31,6 +35,28 @@ namespace BudgetManagement.Controllers {
                 AccountType = group.Key,
                 Accounts = group.AsEnumerable()
                 }).ToList();
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Detail(int id, int month, int year) {
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
+
+            var userId = usersService.GetUserId();
+            var account = await accountsRepository.GetForId(id, userId);
+
+            if (account is null) {
+                return RedirectToAction("MineNotFound", "Home");
+            }
+
+            ViewBag.Account = account.Name;
+
+            ViewBag.returnUrl = HttpContext.Request.Path + HttpContext.Request.QueryString;
+
+            var model = await reportService.GetDetailTransactionReportByAccount(userId, account.Id, month, year, ViewBag);
 
             return View(model);
         }

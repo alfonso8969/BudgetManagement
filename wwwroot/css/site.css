@@ -41,3 +41,48 @@ th {
  color: #dc3545;
 }
 
+.noData {
+ text-align: center;
+ font-size: 40px;
+ font-family: Montserrat,'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.trTransactionsGrouped {
+ background-color: lightblue;
+ font-size: 26px
+}
+
+li .nav-link {
+ cursor: pointer;
+}
+
+.fa.fa-file-excel {
+ color: green;
+}
+
+.fa.fa-calendar-day {
+ color: yellow;
+}
+
+.fa.fa-calendar-week {
+ color: orange;
+}
+
+.fa.fa-calendar {
+ color: red;
+}
+
+.fa.fa-clipboard-list {
+ color: gray;
+}
+
+a.nav-link {
+ color: cornflowerblue;
+ font-size: 15px;
+ font-family: Monserrat, 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.nav-pills .nav-link.active {
+ color: white !important;
+ background-color: aqua !important;
+}

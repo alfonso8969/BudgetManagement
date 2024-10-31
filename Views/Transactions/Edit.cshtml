@@ -1,6 +1,7 @@
 ﻿@model TransactionsUpdateViewModel
 @{
     ViewData["Title"] = "Transactions Update";
+    var linkCancel = Model.ReturnUrl ?? Url.Action("Index");
 }
 
 
@@ -12,6 +13,7 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input id="id" type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ReturnUrl" />
             <input type="hidden" asp-for="PreviousAmount" />
             <input type="hidden" asp-for="PreviousAccountId" />
 
@@ -49,7 +51,7 @@
             <div class="form-group mt-3">
                 <input type="submit" value="Edit" class="btn-w150 btn btn-primary" />
                 <input type="button" id="sweetAlert" value="Delete" class="btn-w150 btn btn-danger" />
-                <a asp-action="Index" class="btn btn-default">Cancel</a>
+                <a href="@linkCancel" class="btn btn-default">Cancel</a>
             </div>
         </form>
     </div>

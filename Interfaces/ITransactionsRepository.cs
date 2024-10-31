@@ -5,6 +5,8 @@ namespace BudgetManagement.Interfaces {
         Task Create(Transaction transaction);
         Task Delete(int id);
         Task<Transaction> GetById(int id, int userId);
+        Task<IEnumerable<Transaction>> GetByAccountId(GetTransactionByAccountViewModel model);
         Task Update(Transaction transaction, decimal previousAmount, int previousAccountId);
+        Task<IEnumerable<Transaction>> GetByUserId(ParametersGetTransactionsByUser model);
     }
 }

@@ -1,7 +1,6 @@
 ﻿using BudgetManagement.Interfaces;
 using BudgetManagement.Models;
 using Dapper;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
 
@@ -21,6 +20,31 @@ namespace BudgetManagement.Services {
                 new { transaction.UserId, transaction.TransactionDate, transaction.Amount, transaction.CategoryId, transaction.AccountId, transaction.Note },
                 commandType: System.Data.CommandType.StoredProcedure);
             transaction.Id = id;
+        }
+
+        public async Task<IEnumerable<Transaction>> GetByAccountId(GetTransactionByAccountViewModel model) {
+            using var connection = new SqlConnection(connectionString);
+            return await connection.QueryAsync<Transaction>(
+                @"SELECT t.Id, t.Amount, t.TransactionDate,ac.Name AS Account, ct.Name AS Category, ct.OperationTypeId
+                  FROM Transactions t
+                  INNER JOIN Categories ct ON ct.Id = t.CategoryId
+                  INNER JOIN Accounts ac ON ac.Id = t.AccountId
+                  WHERE t.AccountId = @AccountId AND t.UserId = @UserId AND t.TransactionDate BETWEEN @DateInit AND @DateEnd
+                  ORDER BY t.TransactionDate DESC",
+                model);
+        }
+
+
+        public async Task<IEnumerable<Transaction>> GetByUserId(ParametersGetTransactionsByUser model) {
+            using var connection = new SqlConnection(connectionString);
+            return await connection.QueryAsync<Transaction>(
+                @"SELECT t.Id, t.Amount, t.TransactionDate,ac.Name AS Account, ct.Name AS Category, ct.OperationTypeId
+                  FROM Transactions t
+                  INNER JOIN Categories ct ON ct.Id = t.CategoryId
+                  INNER JOIN Accounts ac ON ac.Id = t.AccountId
+                  WHERE t.UserId = @UserId AND t.TransactionDate BETWEEN @DateInit AND @DateEnd
+                  ORDER BY t.TransactionDate DESC",
+                model);
         }
 
         public async Task Update(Transaction transaction, decimal previousAmount, int previousAccountId) {

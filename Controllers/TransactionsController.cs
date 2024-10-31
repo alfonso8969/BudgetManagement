@@ -11,23 +11,34 @@ namespace BudgetManagement.Controllers {
         private readonly IAccountsRepository _accountsRepository;
         private readonly ICategoriesRepository categoriesRepository;
         private readonly IMapper mapper;
+        private readonly IReportService reportService;
         private readonly IUsersService _usersService;
 
         public TransactionsController(ITransactionsRepository transactionsRepository,
                                       IUsersService usersService, 
                                       IAccountsRepository accountsRepository,
                                       ICategoriesRepository categoriesRepository,
-                                      IMapper mapper) {
+                                      IMapper mapper,
+                                      IReportService reportService) {
             _transactionsRepository = transactionsRepository;
             _accountsRepository = accountsRepository;
             this.categoriesRepository = categoriesRepository;
             this.mapper = mapper;
+            this.reportService = reportService;
             _usersService = usersService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index() {
-            return View();
+        public async Task<IActionResult> Index(int month, int year) {
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
+
+            var userId = _usersService.GetUserId();
+
+            var model = await reportService.GetDetailTransactionReport(userId, month, year, ViewBag);
+
+            return View(model);
         }
 
         [HttpGet]
@@ -73,7 +84,7 @@ namespace BudgetManagement.Controllers {
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id) {
+        public async Task<IActionResult> Edit(int id, string returnUrl = null) {
             if (!ModelState.IsValid) {
                 return BadRequest(ModelState);
             }
@@ -93,7 +104,7 @@ namespace BudgetManagement.Controllers {
             model.PreviousAccountId = transaction.AccountId;
             model.Categories = await GetCategories((int)transaction.OperationTypeId, userId);
             model.Accounts = await GetAccounts(userId);
-
+            model.ReturnUrl = returnUrl;
             return View(model);
         }
 
@@ -129,12 +140,17 @@ namespace BudgetManagement.Controllers {
 
             await _transactionsRepository.Update(transaction, model.PreviousAmount, model.PreviousAccountId);
 
-            return RedirectToAction("Index");
+            if(string.IsNullOrEmpty(model.ReturnUrl)) {
+                return RedirectToAction("Index");
+            } else {
+                return LocalRedirect(model.ReturnUrl);
+            }
+
 
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete([FromBody] int id) {
+        public async Task<IActionResult> Delete([FromBody] int id, string returnUrl = null) {
             if (!ModelState.IsValid) {
                 return BadRequest(ModelState);
             }
@@ -147,7 +163,12 @@ namespace BudgetManagement.Controllers {
             }
 
             await _transactionsRepository.Delete(id);
-            return RedirectToAction("Index");
+
+            if (string.IsNullOrEmpty(returnUrl)) {
+                return RedirectToAction("Index");
+            } else {
+                return LocalRedirect(returnUrl);
+            }
         }
 
 
@@ -175,5 +196,29 @@ namespace BudgetManagement.Controllers {
             return Ok(categories);
             
         }
+
+        #region Reports
+
+        public IActionResult WeeklyReport() {
+            return View();
+        }
+
+        public IActionResult MonthlyReport() {
+            return View();
+        }
+
+        public IActionResult ExportToExcel() {
+            return View("ExcelReport");
+        }
+
+        public IActionResult ShowInCalendar() {
+            return View("Calendar");
+        }
+
+        #endregion
+
+
+
+
     }
 }

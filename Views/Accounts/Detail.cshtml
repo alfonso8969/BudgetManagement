@@ -1,0 +1,11 @@
+﻿@using System.Globalization;
+@model DetailTransactionReportViewModel
+@{
+    ViewData["Title"] = "Account movements";
+    string[] monthNames = DateTimeFormatInfo.CurrentInfo.MonthNames;
+}
+
+<h1>Movements @ViewBag.Account</h1>
+
+<partial name="_TransactionsDetailReport" model="Model" />
+

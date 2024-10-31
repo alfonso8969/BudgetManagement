@@ -1,6 +1,5 @@
 using BudgetManagement.Interfaces;
 using BudgetManagement.Services;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +10,9 @@ builder.Services.AddTransient<IUsersService, UsersServices>();
 builder.Services.AddTransient<IAccountsRepository, AccountsRepository>();
 builder.Services.AddTransient<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddTransient<ITransactionsRepository, TransactionsRepository>();
+builder.Services.AddTransient<IReportService, ReportService>();
+
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
@@ -33,6 +35,6 @@ app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Transactions}/{action=Index}/{id?}");
 
 await app.RunAsync();
