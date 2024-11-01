@@ -1,5 +1,53 @@
-﻿@{
+﻿@model ReportMonthlyViewModel
+@{
     ViewData["Title"] = "Monthly Report";
+    int previousYear = Model.Year - 1;
+    int nextYear = Model.Year + 1;
+
+    var amountResume =
+    new AmountResumeViewModel()
+            {
+                TotalIncomes = Model.Incomes,
+                TotalExpenses = Model.Expenses,
+                Total = Model.Total
+            };
 }
 
 <partial name="_Submenu" Model="SubmenuTransactions.Monthly" />
+
+<h4>Transactions of
+    <a asp-action="MonthlyReport" asp-route-year="@previousYear" class="btn btn-secondary">
+        <i class="fas fa-chevron-left"></i>
+    </a>
+    @Model.Year
+    <a asp-action="MonthlyReport" asp-route-year="@nextYear" class="btn btn-secondary">
+        <i class="fas fa-chevron-right"></i>
+    </a>
+</h4>
+
+<partial name="_AmountResume" model="@amountResume" />
+
+<table id="tableResultTransactionsReportMonthlies" class="table-striped table-hover table-tableResultTransactionsReportMonthlies table">
+    <thead>
+        <tr class="bg-lightBlue">
+            <th>Month</th>
+            <th class="right">Incomes</th>
+            <th class="right">Expense</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var transaction in Model.ResultTransactionsReportMonthlies)
+        {
+            <tr>
+               
+                <td>
+                    <a class="text-decoration-none" asp-action="Index" asp-route-year="@transaction.Month">
+                        @transaction.ReferenceDate.ToString("MMMM")
+                    </a>
+                </td>
+                <td class="right asset">@transaction.Incomes</td>
+                <td class="right liability">@transaction.Expenses</td>
+            </tr>
+        }
+    </tbody>
+</table>

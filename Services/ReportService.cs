@@ -11,6 +11,20 @@ namespace BudgetManagement.Services {
             this.httpContext = httpContextAccessor.HttpContext;
         }
 
+        public async Task<IEnumerable<ResultReportWeekly>> GetReportWeekly(int userId, int month, int year, dynamic ViewBag) {
+            (DateTime dateInit, DateTime dateEnd) = SetDatesInitAndEnd(month, year);
+            var parameter = new ParametersGetTransactionsByUser {
+                DateInit = dateInit,
+                DateEnd = dateEnd,
+                UserId = userId
+            };
+
+            SetViewBagValues(ViewBag, dateInit);
+            var model = await transactionsRepository.GetByWeek(parameter);
+           
+            return model;
+        }
+
         public async Task<DetailTransactionReportViewModel> GetDetailTransactionReportByAccount(int userId, int accountId, int month, int year, dynamic ViewBag) {
             (DateTime dateInit, DateTime dateEnd) = SetDatesInitAndEnd(month, year);
 

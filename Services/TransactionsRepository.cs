@@ -38,7 +38,7 @@ namespace BudgetManagement.Services {
         public async Task<IEnumerable<Transaction>> GetByUserId(ParametersGetTransactionsByUser model) {
             using var connection = new SqlConnection(connectionString);
             return await connection.QueryAsync<Transaction>(
-                @"SELECT t.Id, t.Amount, t.TransactionDate,ac.Name AS Account, ct.Name AS Category, ct.OperationTypeId
+                @"SELECT t.Id, t.Amount, t.TransactionDate, Note, ac.Name AS Account, ct.Name AS Category, ct.OperationTypeId
                   FROM Transactions t
                   INNER JOIN Categories ct ON ct.Id = t.CategoryId
                   INNER JOIN Accounts ac ON ac.Id = t.AccountId
@@ -81,5 +81,36 @@ namespace BudgetManagement.Services {
                 new { id, userId });
             return transaction;
         }
+
+        #region Reports
+
+        public async Task<IEnumerable<ResultReportWeekly>> GetByWeek(ParametersGetTransactionsByUser model) {
+            using var connection = new SqlConnection(connectionString);
+            return await connection.QueryAsync<ResultReportWeekly>(
+                @"SELECT DATEDIFF(D, @dateInit, TransactionDate) / 7 +1 as week,
+                    SUM(Amount) as Amount,ct.OperationTypeId
+                    from Transactions
+                    INNER JOIN Categories ct
+                    ON ct.Id = Transactions.CategoryId
+                    WHERE  Transactions.UserId = @userId AND
+                    TransactionDate BETWEEN @dateInit AND @dateEnd
+                    GROUP BY DATEDIFF(D, @dateInit, TransactionDate) / 7, ct.OperationTypeId",
+                model);
+        }
+
+        public async Task<IEnumerable<ResultReportMonthly>> GetByMonth(int userId, int year) {
+            using var connection = new SqlConnection(connectionString);
+            return await connection.QueryAsync<ResultReportMonthly>(
+                @"SELECT MONTH(TransactionDate) as Month,
+                SUM(Amount) as Amount, ct.OperationTypeId
+                FROM Transactions
+                INNER JOIN Categories ct
+                ON ct.Id = Transactions.CategoryId
+                WHERE Transactions.UserId = @userId AND YEAR(TransactionDate) = @year
+                GROUP BY Month(TransactionDate), ct.OperationTypeId",
+                new { userId, year });
+        }
+
+        #endregion
     }
 }

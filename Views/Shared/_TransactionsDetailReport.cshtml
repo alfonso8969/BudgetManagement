@@ -1,44 +1,18 @@
 ﻿@model DetailTransactionReportViewModel
+@{
+    var amountResume = 
+        new AmountResumeViewModel()
+            {
+                TotalIncomes = Model.BalanceIncomes,
+                TotalExpenses = Model.BalanceExpenses,
+                Total = Model.Total
+            };
+}
 
 
-<h4>
-    <a asp-route-month="@ViewBag.previousMonth" asp-route-year="@ViewBag.previousYear" class="btn btn-secondary">
-        <i class="fa fa-chevron-left"></i>
-    </a>
 
-    @Model.DateInit.ToString("MMM") - @Model.DateInit.Year
-    <a asp-route-month="@ViewBag.nextMonth" asp-route-year="@ViewBag.nextYear" class="btn btn-secondary">
-        <i class="fa fa-chevron-right"></i>
-    </a>
-</h4>
-
-<div class="totals-container mb-3">
-    <div>
-        <div>
-            <strong>Incomes</strong>
-        </div>
-        <div class="asset">
-            <strong>@Model.BalanceIncomes.ToString()</strong>
-        </div>
-    </div>
-    <div>
-        <div>
-            <strong>Expenses</strong>
-        </div>
-        <div class="liability">
-            <strong>@Model.BalanceExpenses.ToString()</strong>
-        </div>
-    </div>
-    <div>
-        <div>
-            <strong>Totals</strong>
-        </div>
-        <div class="@(Model.Total > 0 ? "asset" : "liability")">
-            <strong>@Model.Total.ToString("N")</strong>
-        </div>
-    </div>
-
-</div>
+<partial name="_NavigationByMonths" model="@Model.DateInit" />
+<partial name="_AmountResume" model="@amountResume" />
 
 @if (Model.TransactionsGrouped.Count() == 0)
 {

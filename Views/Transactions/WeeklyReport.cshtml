@@ -1,5 +1,56 @@
-﻿@{
+﻿@model ReportWeeklyModelView
+
+@{
     ViewData["Title"] = "Weekly Report";
+
+    string formatDate(DateTime date) => date.ToString("MM.dd");
+    var amountResume =
+    new AmountResumeViewModel()
+            {
+                TotalIncomes = Model.Incomes,
+                TotalExpenses = Model.Expenses,
+                Total = Model.Total
+            };
 }
 
+<h1>Weekly Transactions</h1>
+
 <partial name="_Submenu" Model="SubmenuTransactions.Weekly"/>
+
+<partial name="_NavigationByMonths" model="@Model.ReferenceDate" />
+
+<partial name="_AmountResume" model="@amountResume" />
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <table id="tableResultTransactionsReportWeeklies" class="table-striped table-ResultTransactionsReportWeeklies table">
+                <thead>
+                    <tr>
+                        <th>Week</th>
+                        <th class="right">Incomes</th>
+                        <th class="right">Expenses</th>                        
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var transaction in Model.ResultTransactionsReportWeeklies)
+                    {
+                        <tr>
+                            <td>
+                                <a class="text-decoration-none" asp-action="Index" asp-route-year="@Model.ReferenceDate.Year" asp-route-month="@Model.ReferenceDate.Month">
+                                    @formatDate(transaction.DateInit) ~ @formatDate(transaction.DateEnd)
+                                </a>
+                            </td>
+                            <td class="asset right">
+                                @transaction.Incomes
+                            </td>
+                            <td class="liability right">
+                                @transaction.Expenses
+                            </td>                                                     
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

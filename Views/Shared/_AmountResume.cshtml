@@ -1,0 +1,29 @@
+﻿@model AmountResumeViewModel
+
+<div class="totals-container mb-3">
+    <div>
+        <div>
+            <strong>Incomes</strong>
+        </div>
+        <div class="asset">
+            <strong>@Model.TotalIncomes.ToString()</strong>
+        </div>
+    </div>
+    <div>
+        <div>
+            <strong>Expenses</strong>
+        </div>
+        <div class="liability">
+            <strong>@Model.TotalExpenses.ToString()</strong>
+        </div>
+    </div>
+    <div>
+        <div>
+            <strong>Totals</strong>
+        </div>
+        <div class="@(Model.Total > 0 ? "asset" : "liability")">
+            <strong>@Model.Total.ToString("N")</strong>
+        </div>
+    </div>
+
+</div>

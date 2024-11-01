@@ -86,3 +86,31 @@ a.nav-link {
  color: white !important;
  background-color: aqua !important;
 }
+
+.table-ResultTransactionsReportWeeklies {
+ font-size: 20px;
+}
+
+#tableResultTransactionsReportWeeklies .left {
+ text-align: left;
+}
+
+#tableResultTransactionsReportWeeklies .right {
+ text-align: right;
+}
+
+.table-ResultTransactionsReportMonthlies {
+ font-size: 20px;
+}
+
+#tableResultTransactionsReportMonthlies .left {
+ text-align: left;
+}
+
+#tableResultTransactionsReportMonthlies .right {
+ text-align: right;
+}
+
+.bg-lightBlue {
+ background-color: lightblue;
+}
