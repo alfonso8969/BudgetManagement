@@ -37,7 +37,7 @@ else
                 {
                     <tr style="vertical-align: middle">
                         <td>
-                            <a asp-controller="Transactions" asp-action="Edit" asp-route-id="@transaction.Id" asp-route-returnUrl="@ViewBag.returnUrl"
+                            <a asp-controller="Transactions" asp-action="Edit" asp-route-id="@transaction.Id" asp-route-returnUrl="@(ViewBag.returnUrl ?? "/Transactions/Index")"
                                class="btn btn-primary">
                                 <i class="fa fa-pencil"></i>
                             </a>

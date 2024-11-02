@@ -3,3 +3,134 @@
 }
 
 <partial name="_Submenu" Model="SubmenuTransactions.Calendar" />
+
+<div id="calendar">
+</div>
+
+<ul>
+    <li><a href="#modal1">DESLIZAR</a></li>
+    <li><a href="#modal2">ROTAR</a></li>
+    <li><a href="#modal3">REDIMENSIONAR</a></li>
+</ul>
+<div id="modal1" class="modalmask">
+    <div class="modalbox movedown">
+        <a href="#close" title="Close" class="close">X</a>
+        <h2>DESLIZAR</h2>
+        <p>La ventana modal aparece por arriba y se desliza hasta su posición. Un efecto simple pero elegante.</p>
+        <p>Aquí puedes incluir cualquier cosa como vídeos, mapas, formularios...</p>
+    </div>
+</div>
+<div id="modal2" class="modalmask">
+    <div class="modalbox rotate">
+        <a href="#close" title="Close" class="close">X</a>
+        <h2>ROTAR</h2>
+        <p>Usando la propiedad transform de CSS3, podemos hacer que las ventanas aparezcan rotando.</p>
+        <p>No hay nada de Javascript, solo unas pocas lineas de CSS.</p>
+    </div>
+</div>
+<div id="modal3" class="modalmask">
+    <div class="modalbox resize">
+        <a href="#close" title="Close" class="close">X</a>
+        <h2>REDIMENSIONAR</h2>
+        <p>También puedes redimensionar la ventana hasta hacerla desaparecer.</p>
+        <p>Las posibilidades que ofrece CSS3 son múltiples, tan solo hace falta un poco de imaginación para crear efectos realmente llamativos.</p>
+    </div>
+</div>
+
+<div class="modal fade" id="modalTransactions" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-bs-dismiss="modal" title="Close">X</button>
+                <h5 class="modal-title">Transactions of the day</h5>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th id="modalDateTable" colspan="2"></th>
+                            <th id="modalIncomesTable" class="asset"></th>
+                            <th id="modalExpensesTable" class="liability"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalBodyTable">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/lib/fullcalendar/main.min.js"></script>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                dayMaxEventRows: 3,
+                initialView: 'dayGridMonth',
+                events: '/Transactions/ShowTransactionsInCalendar',
+                dateClick: async function(info){
+                    await searchTransaccionesByDate(info.dateStr);
+                }
+            });
+            calendar.render();
+        });
+
+          async function searchTransaccionesByDate(date){
+            const response = await
+                fetch(`/transactions/GetTransactionsByDate?date=${date}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const json = await response.json();
+
+                let incomes = 0;
+                let expenses = 0;
+                const typeIncomeOperations = 1;
+
+                const formater = new Intl.NumberFormat('es-ES', {
+                    style: 'currency',
+                    currency: 'EUR'
+                });
+
+                const rows = json.map(transactions => {
+
+                    if (transactions.operationTypeId === typeIncomeOperations){
+                        incomes += transactions.amount;
+                    } else{
+                        expenses += transactions.amount;
+                    }
+
+                    return `<tr>
+                        <td>${transactions.category}</td>
+                        <td>${transactions.account}</td>
+                        <td align="right" colspan="2"
+                         class=${transactions.operationTypeId === typeIncomeOperations ?
+                             'asset' : 'liability'}>
+                             ${formater.format(transactions.amount)}
+                             </td>
+                    </tr>`;
+                });
+
+                $("#modalBodyTable").html(rows);
+                $("#modalIncomesTable").html(formater.format(incomes));
+                $("#modalExpensesTable").html(formater.format(expenses));
+                $("#modalDateTable").html(date);
+
+                const modalTransactions =
+                    new bootstrap.Modal(document.getElementById('modalTransactions'));
+
+                modalTransactions.show();
+        }
+    </script>
+}

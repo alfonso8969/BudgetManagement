@@ -5,7 +5,6 @@ using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
-using System.Reflection;
 
 namespace BudgetManagement.Controllers {
     public class TransactionsController: Controller {
@@ -227,8 +226,10 @@ namespace BudgetManagement.Controllers {
 
             for (int i = 0; i < daysSegment.Count; i++) {
                 var week = i + 1;
+#pragma warning disable S6608 // Prefer indexing instead of "Enumerable" methods on types implementing "IList"
                 var dateInit = new DateTime(year, month, daysSegment[i].First(), 0, 0, 0, DateTimeKind.Utc);
                 var dateEnd = new DateTime(year, month, daysSegment[i].Last(), 0, 0, 0, DateTimeKind.Utc);
+#pragma warning restore S6608 // Prefer indexing instead of "Enumerable" methods on types implementing "IList"
                 var groupWeek = grouped.Find(x => x.Week == week);
 
                 if (groupWeek == null) {
@@ -260,7 +261,7 @@ namespace BudgetManagement.Controllers {
 
             var userId = _usersService.GetUserId();
 
-            if(year == 0) {
+            if (year == 0) {
                 year = DateTime.Today.Year;
             }
 
@@ -326,7 +327,7 @@ namespace BudgetManagement.Controllers {
                 DateEnd = dateEnd
             });
 
-            var fileName = $"Transactions_{dateInit:MMM yyyy}.xlsx";            
+            var fileName = $"Transactions_{dateInit:MMM yyyy}.xlsx";
 
             return GenerateExcel(fileName, transactions);
         }
@@ -401,11 +402,47 @@ namespace BudgetManagement.Controllers {
         }
 
 
+
         public IActionResult ShowInCalendar() {
-            if (!ModelState.IsValid) {
-                return BadRequest(ModelState);
-            }
             return View("Calendar");
+        }
+
+
+        public async Task<JsonResult> ShowTransactionsInCalendar(DateTime start, DateTime end) {
+            if (!ModelState.IsValid) {
+                return Json(ModelState);
+            }
+
+            var userId = _usersService.GetUserId();
+            var transactions = await _transactionsRepository.GetByUserId(new ParametersGetTransactionsByUser {
+                UserId = userId,
+                DateInit = start,
+                DateEnd = end
+            });
+
+            var eventCalendar = transactions.Select(Transaction => new CalendarEvent() {
+                Title = Transaction.Category + "\n" + Transaction.Amount,
+                Start = Transaction.TransactionDate.ToString("yyyy-MM-dd"),
+                End = Transaction.TransactionDate.ToString("yyyy-MM-dd"),
+                Color = Transaction.OperationTypeId == OperationType.Income ? null : "#dc3545"
+            });
+            var json = Json(eventCalendar);
+            return json;
+        }
+
+        public async Task<JsonResult> GetTransactionsByDate(DateTime date) {
+            if (!ModelState.IsValid) {
+                return Json(ModelState);
+            }
+
+            var userId = _usersService.GetUserId();
+            var transactions = await _transactionsRepository.GetByUserId(new ParametersGetTransactionsByUser {
+                UserId = userId,
+                DateInit = date,
+                DateEnd = date
+            });
+
+            return Json(transactions);
         }
 
         #endregion
