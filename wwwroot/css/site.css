@@ -208,3 +208,41 @@ a.nav-link {
  width: 400px;
  height: 200px;
 }
+
+.card-login {
+ background-image: url("https://live.mdnplay.dev/es/docs/Web/CSS/background-image/mdn_logo_only_color.png");
+ height: 550px !important;
+ width: 150%;
+ max-width: 550px !important;
+ max-height: 550px;
+ background-repeat: no-repeat;
+ background-size: cover;
+ background-position: center;
+ display: block;
+ position: fixed;
+ margin: -15% -3%;
+}
+
+.container.login {
+ margin-top: 10%
+}
+
+.body-login {
+ background-image: url(../assets/images/background-body-login-layout.jpg);
+ height: 100%;
+ width: 100%;
+ background-repeat: no-repeat;
+ background-size: cover;
+ background-position: center;
+}
+
+.div-login {
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ height: 100vh;
+}
+
+.mr-5 {
+ margin-right: 5rem;
+}

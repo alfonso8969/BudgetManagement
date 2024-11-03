@@ -3,13 +3,13 @@ using BudgetManagement.Models;
 using Microsoft.Data.SqlClient;
 using Dapper;
 
-namespace BudgetManagement.Services {
+namespace BudgetManagement.Repositories {
     public class CategoriesRepository: ICategoriesRepository {
 
         private readonly string connectionString;
 
         public CategoriesRepository(IConfiguration configuration) {
-            connectionString = configuration.GetConnectionString("BudgetManagementDb");                     
+            connectionString = configuration.GetConnectionString("BudgetManagementDb");
         }
 
         public async Task Create(Category category) {
@@ -17,7 +17,7 @@ namespace BudgetManagement.Services {
             var id = await connection.QuerySingleAsync<int>(@"INSERT INTO Categories (Name, OperationTypeId, UserId) 
             VALUES (@Name, @OperationTypeId, @UserId);
             SELECT SCOPE_IDENTITY();", category);
-            category.Id = id;                       
+            category.Id = id;
         }
 
         public async Task<IEnumerable<Category>> GetAllForUser(int userId) {
@@ -29,7 +29,7 @@ namespace BudgetManagement.Services {
             using var connection = new SqlConnection(connectionString);
             return await connection.QueryAsync<Category>(
                 @$"SELECT * FROM Categories 
-                WHERE UserId = @UserId AND OperationTypeId = @operationTypeId", 
+                WHERE UserId = @UserId AND OperationTypeId = @operationTypeId",
                  new { userId, operationTypeId });
         }
 

@@ -4,15 +4,15 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
-namespace BudgetManagement.Services {
+namespace BudgetManagement.Repositories {
 
     public class TypesAccountRepository: ITypesAccountRepository {
-       private readonly string _connectionString;
+        private readonly string _connectionString;
 
         public TypesAccountRepository(IConfiguration configuration) {
             _connectionString = configuration.GetConnectionString("BudgetManagementDb");
         }
-        
+
         public async Task Create(AccountType accountType) {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();

@@ -4,7 +4,7 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 
 
-namespace BudgetManagement.Services {
+namespace BudgetManagement.Repositories {
     public class TransactionsRepository: ITransactionsRepository {
 
         private readonly string connectionString;

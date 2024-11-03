@@ -4,7 +4,7 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 
 
-namespace BudgetManagement.Services {
+namespace BudgetManagement.Repositories {
     public class AccountsRepository: IAccountsRepository {
         private readonly string _connectionString;
 
@@ -44,7 +44,7 @@ namespace BudgetManagement.Services {
             return await connection.QueryFirstOrDefaultAsync<Account>(
                 @"SELECT Accounts.Id, Accounts.Name, Balance, Description, AccountTypeId
                   FROM Accounts INNER JOIN AccountsType at on at.Id = Accounts.AccountTypeId 
-                  WHERE Accounts.Id = @Id AND userId = @UserId", new { id , userId });
+                  WHERE Accounts.Id = @Id AND userId = @UserId", new { id, userId });
         }
 
         public async Task Delete(int id) {

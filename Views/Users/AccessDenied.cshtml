@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<h1>Access Denied</h1>
+<p>You do not have permission to access this page.</p>
+
+<div>
+    <p>
+        This Razor view displays a generic "Access Denied" page with a message indicating that the user does not have permission to access the requested page.
+        The at sign symbol in the
+    <p>
+        To use this Razor view in your ASP.NET Core MVC application, create a new Razor Page in the `Views/Shared` folder with the `.cshtml` extension. Replace the existing content with the provided code.
+    </p>
+    <p>
+        Make sure to add the `AccessDenied.cshtml` file to your project's `Views/Shared` folder and set the `DefaultLayout` property in `_ViewImports.cshtml` to use the custom layout.
+    <p>
+        Now, when you attempt to access a protected resource, the user will be redirected to the "Access Denied" page if they do not have the necessary permissions. This will help improve the user experience and prevent unauthorized access.
+        system
+    </p>
+
+    <p>
+        You are tasked with implementing a custom authentication middleware for a web application using ASP.NET Core. The middleware should check if the user has a valid access token before allowing access to protected routes. The access token is obtained from an external service and stored in the `HttpContext.User.Identity.Token` property.
+    </p>
+    <p>
+        Your task is to create a middleware class `CustomAuthorizationMiddleware` that inherits from `AuthorizationMiddleware` and implements the `Invoke` method to handle the authentication process. The middleware should verify the access token and allow access to protected routes only if it is valid. If the access token is invalid, the middleware should return a 401 Unauthorized response.
+    </p>
+    <p>
+        Your implementation should adhere to the following requirements:
+        1. Use the provided `AuthorizationMiddleware` class as a base for the custom middleware.
+    </p>
+    <ul>
+        <li>
+            2. Implement the `Invoke` method to handle the authentication process.
+        </li>
+        <li>
+            3. Verify the access token stored in `HttpContext.User.Identity.Token`.
+        <li>
+        4. Return a 401 Unauthorized response if the access token is invalid.
+        <li>
+            5. Allow access to protected routes if the access token is valid.
+        </li>
+    </ul>
+
+    Your solution should demonstrate a clear understanding of ASP.NET Core middleware and authentication concepts.
+</div>
+<div class="container">
+    <a type="button" class="btn btn-danger" asp-controller="User" asp-action="Login">Access Denied</a>
+</div>
