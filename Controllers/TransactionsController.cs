@@ -181,7 +181,10 @@ namespace BudgetManagement.Controllers {
         [HttpGet]
         private async Task<IEnumerable<SelectListItem>> GetCategories(int operationType, int userId) {
             var categories = await categoriesRepository.GetForUserAndOperationType(userId, operationType);
-            return categories.Select(c => new SelectListItem(c.Name, c.Id.ToString()));
+            var result = categories.Select(c => new SelectListItem(c.Name, c.Id.ToString())).ToList();
+            var defaultOption = new SelectListItem("Select a category", "0", true);
+            result.Insert(0, defaultOption);
+            return result;
         }
 
         [HttpPost]

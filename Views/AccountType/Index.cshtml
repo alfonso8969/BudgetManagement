@@ -1,20 +1,44 @@
-﻿
-@model IEnumerable<AccountType>
+﻿@model PaginationResponseViewModel<AccountType>
 @{
     ViewData["Title"] = "Accounts type";
 
 }
 
 <h2>Accounts type</h2>
+<h3>Total Records: @Model.TotalRecords</h3>
 <h5>Drag the rows to reorder them</h5>
 <p>
     <a asp-action="Create" class="btn btn-primary mb-3">Create New</a>
 </p>
+
+<div class="recordsPerPage">
+    <nav>
+        <ul>
+            <li class="nav-item">
+                <label class="form-label">Number of records to display: </label>
+            </li>
+            <li class="nav-item">
+                <div class="mb-3">
+                    <select asp-for="@Model.RecordsPerPage" id="recordsPerPage" class="form-select w-50" name="select_recordsPerPage" title="Records Per Page">
+                        <option>3</option>
+                        <option>5</option>
+                        <option>10</option>
+                        <option>25</option>
+                    </select>
+                </div>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<partial name="_Pagination" />
+
+
 <table class="table-bordered table-striped table-responsive-sm table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.DisplayNameFor(model => model.Data.FirstOrDefault().Name)
             </th>
 @*             <th>
                 @Html.DisplayNameFor(model => model.Order)
@@ -23,7 +47,7 @@
         </tr>
     </thead>
     <tbody id="sortable">
-        @foreach (var accountType in Model)
+        @foreach (var accountType in Model.Data)
         {
             <tr>
                 <td>
@@ -83,5 +107,10 @@
                 });
             }
          });
+
+          $("#recordsPerPage").on("change", function(){
+            const recordsPerPage = $(this).val();
+            location.href = `/accountType/index?page=1&recordsPerPage=${recordsPerPage}`
+        });
     </script>
 }

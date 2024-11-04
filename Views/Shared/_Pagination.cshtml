@@ -1,0 +1,78 @@
+﻿@model PaginationResponseViewModel
+@{
+    var linkTemplate = string.Concat(Model.BaseURL, "?page={0}&recordsPerPage={1}");
+    var activeButtonPrevious = Model.CurrentPage > 1;
+    var activeButtonNext = Model.CurrentPage < Model.TotalPages;
+    var activeButtonFirst = Model.CurrentPage != 1;
+    var activeButtonLast = Model.CurrentPage != Model.TotalPages;
+}
+
+<nav>
+    <ul class="pagination">
+        <li class="page-item @(activeButtonFirst ? null : "disabled")">
+            @if (activeButtonFirst)
+            {
+                <a class="page-link" href="@string.Format(linkTemplate, 1, Model.RecordsPerPage)">
+                    <i class="fa fa-chevron-left"></i>
+                    <i class="fa fa-chevron-left"></i>
+                    First
+                </a>
+
+            }
+            else
+            {
+                <span class="page-link">First</span>
+            }
+        </li>
+        <li class="page-item @(activeButtonPrevious ? null : "disabled")">
+            @if (activeButtonPrevious)
+            {
+                <a class="page-link" href="@string.Format(linkTemplate, Model.CurrentPage - 1, Model.RecordsPerPage)">
+                    <i class="fa fa-chevron-left"></i>
+                    Previous
+                </a>
+
+            }
+            else
+            {
+                <span class="page-link">Previous</span>
+            }
+        </li>
+        @for (var intPage = 1; intPage <= Model.TotalPages; intPage++)
+        {
+            <li class="page-item @(intPage == Model.CurrentPage ? "active" : null)">
+                <a class="page-link" href="@string.Format(linkTemplate, intPage, Model.RecordsPerPage)">
+                    @intPage
+                </a>
+            </li>
+        }
+        <li class="page-item @(activeButtonNext ? null : "disabled")">
+            @if (activeButtonNext)
+            {
+                <a class="page-link" href="@string.Format(linkTemplate, Model.CurrentPage + 1, Model.RecordsPerPage)">
+                    Next
+                    <i class="fa fa-chevron-right"></i>
+                </a>
+            }
+            else
+            {
+                <span class="page-link">Next</span>
+            }
+        <li class="page-item @(activeButtonLast ? null : "disabled")">
+                @if (activeButtonLast)
+                {
+                <a class="page-link" href="@string.Format(linkTemplate, Model.TotalPages, Model.RecordsPerPage)">
+                    Last
+                    <i class="fa fa-chevron-right"></i>
+                    <i class="fa fa-chevron-right"></i>
+                </a>
+
+                }
+                else
+                {
+                <span class="page-link">Last</span>
+                }
+        </li>
+        </li>
+    </ul>
+</nav>

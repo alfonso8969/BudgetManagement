@@ -14,10 +14,20 @@ namespace BudgetManagement.Controllers {
         }
 
 
-        public async Task<IActionResult> Index() {
+        public async Task<IActionResult> Index(PaginationViewModel pagination) {
+            if (!ModelState.IsValid) {
+                return View(ModelState);
+            }
             var userId = _usersService.GetUserId();
-            var accountTypes = await _typesAccountRepository.GetTypesAccount(userId);
-            return View(accountTypes);
+            var accountTypes = await _typesAccountRepository.GetTypesAccount(userId, pagination);
+            var response = new PaginationResponseViewModel<AccountType> {
+                TotalRecords = await _typesAccountRepository.GetTotalRecords(userId),
+                CurrentPage = pagination.Page,
+                RecordsPerPage = pagination.RecordsPerPage,
+                Data = accountTypes.ToList(),
+                BaseURL = Url.Action()
+            };
+            return View(response);
         }
 
 
@@ -106,13 +116,13 @@ namespace BudgetManagement.Controllers {
         }
 
         [HttpGet]
-        public async Task<IActionResult> CheckTypeAccountExits(string name) {
+        public async Task<IActionResult> CheckTypeAccountExits(string name, int id) {
             if (!ModelState.IsValid) {
                 return BadRequest(ModelState);
             }
 
             var userId = _usersService.GetUserId();
-            var accountTypeExits = await _typesAccountRepository.TypeAccountExitsForUserId(name, userId);
+            var accountTypeExits = await _typesAccountRepository.TypeAccountExitsForUserId(name, userId, id);
 
             if (accountTypeExits) {
                 return Json($"Account type {name} already exists");
@@ -122,12 +132,12 @@ namespace BudgetManagement.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> Sort([FromBody] int[] sortedIds) {
+        public async Task<IActionResult> Sort([FromBody] int[] sortedIds, PaginationViewModel pagination) {
             if (!ModelState.IsValid) {
                 return BadRequest(ModelState);
             }
             var userId = _usersService.GetUserId();
-            var accountTypes = await _typesAccountRepository.GetTypesAccount(userId);
+            var accountTypes = await _typesAccountRepository.GetTypesAccount(userId, pagination);
             var idsAccountsType = accountTypes.Select(x => x.Id);
             var idsAccountsTypeNotUser = idsAccountsType.Except(sortedIds).ToList();
             if (idsAccountsTypeNotUser.Count > 0) {

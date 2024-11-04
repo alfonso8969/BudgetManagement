@@ -246,3 +246,12 @@ a.nav-link {
 .mr-5 {
  margin-right: 5rem;
 }
+
+.recordsPerPage {
+ float: right;
+ margin-right: 10px;
+}
+
+.recordsPerPage ul {
+  list-style: none;
+}

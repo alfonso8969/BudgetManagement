@@ -18,13 +18,15 @@ builder.Services.AddControllersWithViews(options => {
 });
 
 builder.Services.AddTransient<ITypesAccountRepository, TypesAccountRepository>();
-builder.Services.AddTransient<IUsersService, UsersServices>();
 builder.Services.AddTransient<IAccountsRepository, AccountsRepository>();
 builder.Services.AddTransient<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddTransient<ITransactionsRepository, TransactionsRepository>();
+builder.Services.AddTransient<IPersonRepository, PersonRepository>();
 builder.Services.AddTransient<IReportService, ReportService>();
 builder.Services.AddTransient<IUsersRepository, UsersRepository>();
+builder.Services.AddTransient<IUsersService, UsersServices>();
 builder.Services.AddTransient<IUserStore<User>, UsersStore>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<SignInManager<User>>();
 
 builder.Services.AddIdentityCore<User>(options => {
@@ -34,7 +36,8 @@ builder.Services.AddIdentityCore<User>(options => {
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 12;
-}).AddErrorDescriber<IdentityErrorMessages>();
+}).AddErrorDescriber<IdentityErrorMessages>()
+.AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme  = IdentityConstants.ApplicationScheme;
@@ -51,7 +54,6 @@ builder.Services.AddAuthentication(options => {
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
-
 
 
 builder.Services.AddHttpContextAccessor();

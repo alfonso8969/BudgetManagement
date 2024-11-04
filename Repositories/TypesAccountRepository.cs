@@ -22,19 +22,25 @@ namespace BudgetManagement.Repositories {
             accountType.Id = Id;
         }
 
-        public async Task<bool> TypeAccountExitsForUserId(string name, int userId) {
+        public async Task<bool> TypeAccountExitsForUserId(string name, int userId, int Id = 0) {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
             var result = await connection.QueryFirstOrDefaultAsync<int>(
-                $@"SELECT COUNT(1) FROM AccountsType WHERE Name = @Name AND UserId = @UserId", new { Name = name, UserId = userId });
+                $@"SELECT 1 FROM AccountsType WHERE Name = @Name AND UserId = @UserId AND Id <> @id", new { Name = name, UserId = userId, id = Id });
             return result > 0;
         }
 
-        public async Task<IEnumerable<AccountType>> GetTypesAccount(int userId) {
+        public async Task<IEnumerable<AccountType>> GetTypesAccount(int userId, PaginationViewModel pagination) {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
             return await connection.QueryAsync<AccountType>(
-                $@"SELECT DISTINCT Id, Name, [Order] FROM AccountsType WHERE UserId = @UserId ORDER BY [Order]", new { UserId = userId });
+                $@"SELECT Id, Name, [Order] FROM AccountsType WHERE UserId = @UserId ORDER BY [Order] OFFSET {pagination.RecordsToSkip} ROWS FETCH NEXT {pagination.RecordsPerPage} ROWS ONLY", new { UserId = userId });    
+        }
+
+        public async Task<int> GetTotalRecords(int userId) {
+            using var connection = new SqlConnection(_connectionString);
+            return await connection.ExecuteScalarAsync<int>(
+                $@"SELECT COUNT(*) FROM AccountsType WHERE UserId = @UserId", new { UserId = userId });
         }
 
         public async Task Update(AccountType accountType) {

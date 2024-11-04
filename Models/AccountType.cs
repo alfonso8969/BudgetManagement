@@ -10,7 +10,7 @@ namespace BudgetManagement.Models {
     [StringLength(maximumLength: 50, MinimumLength = 3, ErrorMessage = "{0} must be between {2} and {1} characters")]
     [RegularExpression(@"^[a-zA-Z ]*$", ErrorMessage = "Name can only contain letters")]
     [FirstLetterInUppercase]
-    [Remote(action: "CheckTypeAccountExits", controller: "AccountType")]
+    [Remote(action: "CheckTypeAccountExits", controller: "AccountType", AdditionalFields = nameof(Id), ErrorMessage = "This type account already exists")]
     public string Name { get; set; }
     public int UserId { get; set; }
     public int Order { get; set; }

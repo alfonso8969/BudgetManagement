@@ -6,21 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace BudgetManagement.Controllers {
     public class CategoriesController: Controller {
 
-        private readonly ITypesAccountRepository typesAccountRepository;
         private readonly IUsersService usersService;
-        private readonly IAccountsRepository accountsRepository;
-        private readonly IMapper mapper;
         private readonly ICategoriesRepository categoriesRepository;
 
-        public CategoriesController(ITypesAccountRepository typesAccountRepository,
-            IUsersService usersService,
-            IAccountsRepository accountsRepository,
-            IMapper mapper,
+        public CategoriesController(IUsersService usersService,
             ICategoriesRepository categoriesRepository) {
-            this.typesAccountRepository = typesAccountRepository;
+
             this.usersService = usersService;
-            this.accountsRepository = accountsRepository;
-            this.mapper = mapper;
             this.categoriesRepository = categoriesRepository;
         }
 
@@ -42,11 +34,25 @@ namespace BudgetManagement.Controllers {
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Index() {
+        public async Task<IActionResult> Index(PaginationViewModel pagination) {
+            if (!ModelState.IsValid) {
+                return View(pagination);
+            }
             var userId = usersService.GetUserId();
-            var categories = await categoriesRepository.GetAllForUser(userId);
-            return View(categories);
-            
+            var categories = await categoriesRepository.GetAllForUser(userId, pagination);
+            if (categories == null) {
+                return RedirectToAction("MineNotFound", "Home");
+            }
+            var total = await categoriesRepository.GetTotalRecords(userId);
+            var response = new PaginationResponseViewModel<Category> {
+                TotalRecords = total,
+                CurrentPage = pagination.Page,
+                RecordsPerPage = pagination.RecordsPerPage,
+                Data = categories.ToList(),
+                BaseURL = Url.Action()
+            };
+
+            return View(response);
         }
 
         [HttpGet]

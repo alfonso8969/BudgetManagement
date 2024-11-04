@@ -20,9 +20,20 @@ namespace BudgetManagement.Repositories {
             category.Id = id;
         }
 
-        public async Task<IEnumerable<Category>> GetAllForUser(int userId) {
+        public async Task<IEnumerable<Category>> GetAllForUser(int userId, PaginationViewModel pagination) {
             using var connection = new SqlConnection(connectionString);
-            return await connection.QueryAsync<Category>("SELECT * FROM Categories WHERE UserId = @UserId", new { userId });
+            return await connection.QueryAsync<Category>(
+                @$"SELECT * FROM Categories
+                WHERE UserId = @UserId
+                ORDER BY Name
+                OFFSET {pagination.RecordsToSkip} ROWS
+                FETCH NEXT {pagination.RecordsPerPage} ROWS ONLY", new { userId });
+        }
+
+        public async Task<int> GetTotalRecords(int userId) {
+            using var connection = new SqlConnection(connectionString);
+            return await connection.ExecuteScalarAsync<int>(
+                @"SELECT COUNT(*) FROM Categories WHERE UserId = @UserId", new { userId });
         }
 
         public async Task<IEnumerable<Category>> GetForUserAndOperationType(int userId, int operationTypeId) {

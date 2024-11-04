@@ -108,8 +108,10 @@ namespace BudgetManagement.Services {
             return Task.CompletedTask;
         }
 
-        public Task<IdentityResult> UpdateAsync(User user, CancellationToken cancellationToken) {
-            throw new NotImplementedException();
+        public async Task<IdentityResult> UpdateAsync(User user, CancellationToken cancellationToken) {
+            await usersRepository.Update(user);
+            return IdentityResult.Success;
+            
         }
     }
 }

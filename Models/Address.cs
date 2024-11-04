@@ -7,9 +7,12 @@ namespace BudgetManagement.Models {
         [Required]
         public string Street { get; set; }
         [Required]
-        public string StreetNumber { get; set; }
-        public string Plant { get; set; }
-        public string ApartmentNumber { get; set; }
+        [Display(Name = "Street Number")]
+        public int StreetNumber { get; set; }
+        public int Plant { get; set; }
+        [Display(Name = "Apt. Number")]
+        [Required]
+        public int ApartmentNumber { get; set; }
         [Required]       
         public string City { get; set; }
         [Required]
@@ -27,7 +30,7 @@ namespace BudgetManagement.Models {
         public int PostalCode { get; set; }
 
         public override string ToString() {
-            return $"{Street},{StreetNumber?? ""} {Plant ?? ""} {ApartmentNumber ?? ""}  {City}, {Country}, {Region}, {AutonomousCommunity} {PostalCode}";
+            return $"{Street},{StreetNumber} {Plant} {ApartmentNumber}  {City}, {Country}, {Region}, {AutonomousCommunity} {PostalCode}";
         }
     }
 }

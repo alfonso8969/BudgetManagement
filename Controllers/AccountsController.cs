@@ -62,19 +62,22 @@ namespace BudgetManagement.Controllers {
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create() {
+        public async Task<IActionResult> Create(PaginationViewModel pagination) {
+            if (!ModelState.IsValid) {
+                return View(ModelState);
+            }
 
             var userId = usersService.GetUserId();
 
             var viewModel = new AccountCreateViewModel {
-                AccountsTypes = await GetTypesAccount(userId)
+                AccountsTypes = await GetTypesAccount(userId, pagination)
             };
 
             return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(AccountCreateViewModel account) {
+        public async Task<IActionResult> Create(AccountCreateViewModel account, PaginationViewModel pagination) {
 
 
             var userId = usersService.GetUserId();
@@ -85,7 +88,7 @@ namespace BudgetManagement.Controllers {
             }
 
             if (!ModelState.IsValid) {
-                account.AccountsTypes = await GetTypesAccount(userId);
+                account.AccountsTypes = await GetTypesAccount(userId, pagination);
                 return View(account);
             }
 
@@ -94,7 +97,7 @@ namespace BudgetManagement.Controllers {
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id) {
+        public async Task<IActionResult> Edit(int id, PaginationViewModel pagination) {
 
             var userId = usersService.GetUserId();
             var account = await accountsRepository.GetForId(id, userId);
@@ -107,12 +110,12 @@ namespace BudgetManagement.Controllers {
             }
 
             var viewModel = mapper.Map<AccountCreateViewModel>(account);
-            viewModel.AccountsTypes = await GetTypesAccount(userId);
+            viewModel.AccountsTypes = await GetTypesAccount(userId, pagination);
             return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(AccountCreateViewModel accountToEdit) {
+        public async Task<IActionResult> Edit(AccountCreateViewModel accountToEdit, PaginationViewModel pagination) {
 
             var userId = usersService.GetUserId();
             var accountType = await typesAccountRepository.GetById(accountToEdit.AccountTypeId, userId);
@@ -127,7 +130,7 @@ namespace BudgetManagement.Controllers {
             }
 
             if (!ModelState.IsValid) {
-                accountToEdit.AccountsTypes = await GetTypesAccount(userId);
+                accountToEdit.AccountsTypes = await GetTypesAccount(userId, pagination);
                 return View(account);
             }
 
@@ -166,8 +169,8 @@ namespace BudgetManagement.Controllers {
             return RedirectToAction("Index");
         }
 
-        private async Task<IEnumerable<SelectListItem>> GetTypesAccount(int userId) {
-            var typesAccounts = await typesAccountRepository.GetTypesAccount(userId);
+        private async Task<IEnumerable<SelectListItem>> GetTypesAccount(int userId, PaginationViewModel pagination) {
+            var typesAccounts = await typesAccountRepository.GetTypesAccount(userId, pagination);
             return typesAccounts.Select(x => new SelectListItem {
                 Text = x.Name,
                 Value = x.Id.ToString()

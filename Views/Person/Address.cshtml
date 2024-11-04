@@ -1,0 +1,83 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims;
+@inject SignInManager<User> SignInManager
+@model Address
+@{
+    ViewData["Title"] = "Address";
+    int GetUserId() {
+        if (User.Identity.IsAuthenticated) {
+            var idClaim = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            if (idClaim != null)
+            {
+                var userId = int.Parse(idClaim.Value);
+                return userId;
+            }
+        }
+        throw new UnauthorizedAccessException("The user is not authenticated");
+    }
+
+}
+
+<h1>Address</h1>
+
+<form>
+<div class="row">
+    <div class="col-md-4">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input id="id" type="hidden" asp-for="AddressId" />
+            <div class="form-group mb-3">
+                <label asp-for="Street" class="control-label"></label>
+                <input asp-for="Street" class="form-control" readonly />
+                <span asp-validation-for="Street" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="StreetNumber" class="control-label"></label>
+                <input asp-for="StreetNumber" class="form-control" readonly />
+                <span asp-validation-for="StreetNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="City" class="control-label"></label>
+                <input asp-for="City" class="form-control" readonly />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Region" class="control-label"></label>
+                <input asp-for="Region" class="form-control" readonly />
+                <span asp-validation-for="Region" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="PostalCode" class="control-label"></label>
+                <input asp-for="PostalCode" class="form-control" readonly />
+                <span asp-validation-for="PostalCode" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Country" class="control-label"></label>
+                <input asp-for="Country" class="form-control" readonly />
+                <span asp-validation-for="Country" class="text-danger"></span>
+            </div>
+            <div class="fc-button-group">
+                <a asp-action="Edit" asp-route-id="@Model.AddressId" class="btn-w150 btn btn-primary">
+                    <i class="fa fa-edit bg-primary"></i>
+                    Edit
+                </a> |
+                <a asp-action="Delete" asp-route-id="@Model.AddressId" class="btn-w150 btn btn-danger">
+                    <i class="fa fa-trash-alt bg-danger"></i>
+                    Delete
+                </a> |                
+                <a asp-action="Index" asp-route-id="@GetUserId()">Back</a>
+            </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group mb-3">
+            <label asp-for="ApartmentNumber" class="control-label"></label>
+            <input asp-for="ApartmentNumber" class="form-control" readonly />
+            <span asp-validation-for="ApartmentNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label asp-for="Plant" class="control-label"></label>
+            <input asp-for="Plant" class="form-control" readonly />
+            <span asp-validation-for="Plant" class="text-danger"></span>
+        </div>
+    </div>
+</div>
+</form>

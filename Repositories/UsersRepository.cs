@@ -13,8 +13,7 @@ namespace BudgetManagement.Repositories {
         public async Task<int> CreateUser(User user) {
             using var connection = new SqlConnection(connectionString);
             user.PersonId = await connection.QuerySingleOrDefaultAsync<int>("SELECT MAX(PersonId) as PersonId FROM Person");
-            // The User Store is supposed to do this.
-            // user.NormalizedEmail = user.Email.ToUpper();
+
             var sql = "INSERT INTO Users VALUES (@Email, @NormalizedEmail, @PasswordHash, @PersonId, @userName); SELECT SCOPE_IDENTITY();";
             user.PersonId++;
             var userId = await connection.QuerySingleAsync<int>(sql, new { user.Email, user.NormalizedEmail, user.PasswordHash, user.PersonId, user.UserName });
@@ -28,7 +27,7 @@ namespace BudgetManagement.Repositories {
         public async Task<User> GetUserByEmail(string normalizedEmail) {
             using var connection = new SqlConnection(connectionString);
             normalizedEmail = normalizedEmail.ToLower();
-            var sql = @"SELECT u.UserName, p.* FROM Users u INNER JOIN Person p ON u.PersonId = p.PersonId WHERE NormalizedEmail = @NormalizedEmail";
+            var sql = @"SELECT u.Id, u.UserName, p.* FROM Users u INNER JOIN Person p ON u.PersonId = p.PersonId WHERE NormalizedEmail = @NormalizedEmail";
             return await connection.QuerySingleOrDefaultAsync<User>(sql, new { normalizedEmail });
         }
         
@@ -37,6 +36,17 @@ namespace BudgetManagement.Repositories {
             var sql = "SELECT * FROM Users WHERE NormalizedEmail = @UserName";
             return await connection.QuerySingleOrDefaultAsync<User>(sql, new { userName });
         }
-  
+
+        public async Task<User> FindById(int userId) {
+            using var connection = new SqlConnection(connectionString);
+            var sql = "SELECT * FROM Users WHERE UserId = @UserId";
+            return await connection.QuerySingleOrDefaultAsync<User>(sql, new { userId });
+        }
+
+        public async Task Update(User user) {
+            using var connection = new SqlConnection(connectionString);
+            var sql = @"UPDATE Users SET PasswordHash = @PasswordHash WHERE Id = @Id";
+            await connection.ExecuteAsync(sql, new { user.PasswordHash, user.Id });
+        }
     }
 }
